@@ -24,6 +24,8 @@ struct kiwmi_cursor {
     struct wlr_cursor *cursor;
     struct wlr_xcursor_manager *xcursor_manager;
 
+    bool visible;
+
     enum kiwmi_cursor_mode cursor_mode;
 
     struct {
@@ -62,6 +64,8 @@ struct kiwmi_cursor_motion_event {
 struct kiwmi_cursor *cursor_create(
     struct kiwmi_server *server,
     struct wlr_output_layout *output_layout);
+void cursor_hide(struct kiwmi_cursor *cursor);
+void cursor_show(struct kiwmi_cursor *cursor);
 void cursor_destroy(struct kiwmi_cursor *cursor);
 
 #endif /* KIWMI_INPUT_CURSOR_H */

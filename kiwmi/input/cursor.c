@@ -105,6 +105,8 @@ process_cursor_motion(struct kiwmi_server *server, uint32_t time)
         &sx,
         &sy);
 
+    cursor->visible = true;
+
     if (!layer) {
         struct kiwmi_view *view = view_at(
             desktop, cursor->cursor->x, cursor->cursor->y, &surface, &sx, &sy);
@@ -230,6 +232,60 @@ cursor_frame_notify(struct wl_listener *listener, void *UNUSED(data))
     wlr_seat_pointer_notify_frame(input->seat->seat);
 }
 
+void
+cursor_hide(struct kiwmi_cursor *cursor)
+{
+    wlr_cursor_set_surface(cursor->cursor, NULL, 0, 0);
+    cursor->visible = false;
+    wlr_seat_pointer_notify_clear_focus(cursor->server->input.seat->seat);
+}
+
+void
+cursor_show(struct kiwmi_cursor *cursor)
+{
+    struct kiwmi_server *server = cursor->server;
+    struct kiwmi_desktop *desktop = &server->desktop;
+    struct wlr_seat *seat = server->input.seat->seat;
+
+    double ox                     = 0;
+    double oy                     = 0;
+    struct wlr_output *wlr_output = wlr_output_layout_output_at(
+        desktop->output_layout, cursor->cursor->x, cursor->cursor->y);
+
+    wlr_output_layout_output_coords(
+        desktop->output_layout, wlr_output, &ox, &oy);
+
+    struct kiwmi_output *output = wlr_output->data;
+
+    struct wlr_surface *surface = NULL;
+    double sx;
+    double sy;
+
+    struct kiwmi_layer *layer = layer_at(
+        &output->layers[ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY],
+        &surface,
+        cursor->cursor->x,
+        cursor->cursor->y,
+        &sx,
+        &sy);
+
+    cursor->visible = true;
+
+    if (!layer) {
+        struct kiwmi_view *view = view_at(
+            desktop, cursor->cursor->x, cursor->cursor->y, &surface, &sx, &sy);
+
+        if (!view) {
+            wlr_xcursor_manager_set_cursor_image(
+                cursor->xcursor_manager, "left_ptr", cursor->cursor);
+        }
+    }
+
+    if (surface) {
+        wlr_seat_pointer_notify_enter(seat, surface, sx, sy);
+    }
+}
+
 struct kiwmi_cursor *
 cursor_create(
     struct kiwmi_server *server,
@@ -277,6 +333,8 @@ cursor_create(
     wl_signal_init(&cursor->events.button_down);
     wl_signal_init(&cursor->events.button_up);
     wl_signal_init(&cursor->events.motion);
+
+    cursor->visible = true;
 
     return cursor;
 }

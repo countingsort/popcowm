@@ -16,10 +16,23 @@
 
 #include "desktop/view.h"
 #include "input/cursor.h"
+#include "input/seat.h"
 #include "luak/kiwmi_lua_callback.h"
 #include "luak/kiwmi_view.h"
 #include "luak/lua_compat.h"
 #include "luak/luak.h"
+
+static int
+l_kiwmi_cursor_hide(lua_State *L)
+{
+    struct kiwmi_object *obj =
+        *(struct kiwmi_object **)luaL_checkudata(L, 1, "kiwmi_cursor");
+    struct kiwmi_cursor *cursor = obj->object;
+
+    cursor_hide(cursor);
+
+    return 0;
+}
 
 static int
 l_kiwmi_cursor_pos(lua_State *L)
@@ -35,6 +48,18 @@ l_kiwmi_cursor_pos(lua_State *L)
     return 2;
 }
 
+static int
+l_kiwmi_cursor_show(lua_State *L)
+{
+    struct kiwmi_object *obj =
+        *(struct kiwmi_object **)luaL_checkudata(L, 1, "kiwmi_cursor");
+    struct kiwmi_cursor *cursor = obj->object;
+
+    cursor_show(cursor);
+
+    return 0;
+}
+    
 static int
 l_kiwmi_cursor_view_at_pos(lua_State *L)
 {
@@ -73,8 +98,10 @@ l_kiwmi_cursor_view_at_pos(lua_State *L)
 }
 
 static const luaL_Reg kiwmi_cursor_methods[] = {
+    {"hide", l_kiwmi_cursor_hide},
     {"on", luaK_callback_register_dispatch},
     {"pos", l_kiwmi_cursor_pos},
+    {"show", l_kiwmi_cursor_show},
     {"view_at_pos", l_kiwmi_cursor_view_at_pos},
     {NULL, NULL},
 };

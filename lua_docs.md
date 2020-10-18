@@ -70,6 +70,10 @@ A reference to the cursor object.
 
 ### Methods
 
+#### cursor:hide()
+
+Hides the cursor.
+
 #### cursor:on(event, callback)
 
 Used to register event listeners.
@@ -78,6 +82,10 @@ Used to register event listeners.
 
 Get the current position of the cursor.
 Returns two parameters: `x` and `y`.
+
+### cursor:show()
+
+Shows the cursor.
 
 #### cursor:view_at_pos()
 
