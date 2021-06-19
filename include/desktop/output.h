@@ -15,9 +15,9 @@ struct kiwmi_output {
     struct kiwmi_desktop *desktop;
     struct wlr_output *wlr_output;
     struct wl_listener frame;
+    struct wl_listener commit;
     struct wl_listener destroy;
     struct wl_listener mode;
-    struct wl_listener transform;
 
     struct wl_list layers[4]; // struct kiwmi_layer_surface::link
 

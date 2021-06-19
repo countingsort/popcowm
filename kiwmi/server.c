@@ -33,7 +33,7 @@ server_init(struct kiwmi_server *server, char *config_path)
 
     server->wl_event_loop = wl_display_get_event_loop(server->wl_display);
 
-    server->backend = wlr_backend_autocreate(server->wl_display, NULL);
+    server->backend = wlr_backend_autocreate(server->wl_display);
     if (!server->backend) {
         wlr_log(WLR_ERROR, "Failed to create backend");
         wl_display_destroy(server->wl_display);

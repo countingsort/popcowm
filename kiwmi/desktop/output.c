@@ -169,6 +169,19 @@ output_frame_notify(struct wl_listener *listener, void *data)
 }
 
 static void
+output_commit_notify(struct wl_listener *listener, void *data)
+{
+    struct kiwmi_output *output = wl_container_of(listener, output, commit);
+    struct wlr_output_event_commit *event = data;
+
+    if (event->committed & WLR_OUTPUT_STATE_TRANSFORM) {
+        arrange_layers(output);
+
+        wl_signal_emit(&output->events.resize, output);
+    }
+}
+
+static void
 output_destroy_notify(struct wl_listener *listener, void *UNUSED(data))
 {
     struct kiwmi_output *output = wl_container_of(listener, output, destroy);
@@ -195,16 +208,6 @@ output_mode_notify(struct wl_listener *listener, void *UNUSED(data))
     wl_signal_emit(&output->events.resize, output);
 }
 
-static void
-output_transform_notify(struct wl_listener *listener, void *UNUSED(data))
-{
-    struct kiwmi_output *output = wl_container_of(listener, output, transform);
-
-    arrange_layers(output);
-
-    wl_signal_emit(&output->events.resize, output);
-}
-
 static struct kiwmi_output *
 output_create(struct wlr_output *wlr_output, struct kiwmi_desktop *desktop)
 {
@@ -219,14 +222,14 @@ output_create(struct wlr_output *wlr_output, struct kiwmi_desktop *desktop)
     output->frame.notify = output_frame_notify;
     wl_signal_add(&wlr_output->events.frame, &output->frame);
 
+    output->commit.notify = output_commit_notify;
+    wl_signal_add(&wlr_output->events.commit, &output->commit);
+
     output->destroy.notify = output_destroy_notify;
     wl_signal_add(&wlr_output->events.destroy, &output->destroy);
 
     output->mode.notify = output_mode_notify;
     wl_signal_add(&wlr_output->events.mode, &output->mode);
-
-    output->transform.notify = output_transform_notify;
-    wl_signal_add(&wlr_output->events.transform, &output->transform);
 
     return output;
 }

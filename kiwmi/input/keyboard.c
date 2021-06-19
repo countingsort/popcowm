@@ -75,7 +75,7 @@ keyboard_key_notify(struct wl_listener *listener, void *data)
 
     bool handled = false;
 
-    if (event->state == WLR_KEY_PRESSED) {
+    if (event->state == WL_KEYBOARD_KEY_STATE_PRESSED) {
         handled =
             switch_vt(translated_syms, translated_syms_len, server->backend);
     }
@@ -91,7 +91,7 @@ keyboard_key_notify(struct wl_listener *listener, void *data)
             .handled             = false,
         };
 
-        if (event->state == WLR_KEY_PRESSED) {
+        if (event->state == WL_KEYBOARD_KEY_STATE_PRESSED) {
             wl_signal_emit(&keyboard->events.key_down, &data);
         } else {
             wl_signal_emit(&keyboard->events.key_up, &data);
